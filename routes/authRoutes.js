@@ -36,29 +36,36 @@ router.post("/request-otp", async (req, res) => {
 
 // ✅ Verify OTP & Create Account
 router.post("/verify-otp", async (req, res) => {
-  const { phone, otp, password } = req.body;
+  const { phone, otp } = req.body;
 
   try {
+    // Find OTP record
     const otpRecord = await Otp.findOne({ phone, otp });
-    if (!otpRecord) return res.status(400).json({ message: "Invalid OTP" });
+    if (!otpRecord) {
+      return res.status(400).json({ message: "Invalid OTP" });
+    }
 
-    await Otp.deleteOne({ phone }); // Delete OTP after verification
+    // Delete OTP after verification
+    await Otp.deleteOne({ phone });
 
+    // Check if user exists
     let user = await User.findOne({ phone });
     if (!user) {
-      const hashedPassword = await bcrypt.hash(password, 10);
-      user = await User.create({ phone, password: hashedPassword, isVerified: true });
+      // Create user without password
+      user = await User.create({ phone, isVerified: true });
     } else {
+      // Update user verification status only
       user.isVerified = true;
-      user.password = await bcrypt.hash(password, 10);
       await user.save();
     }
 
-    res.json({ message: "Account created successfully", user });
+    res.json({ message: "OTP verified successfully", user });
   } catch (error) {
-    res.status(500).json({ message: "Error verifying OTP", error });
+    console.error("Error verifying OTP:", error);
+    res.status(500).json({ message: "Error verifying OTP", error: error.message });
   }
 });
+
 
 // ✅ Sign In with Phone & Password
 router.post("/signin", async (req, res) => {
