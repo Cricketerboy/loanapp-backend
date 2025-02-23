@@ -68,6 +68,34 @@ router.post("/verify-otp", async (req, res) => {
 });
 
 
+
+router.post("/set-password", async (req, res) => {
+  const { phone, password } = req.body;
+
+  try {
+    // Check if the user exists
+    const user = await User.findOne({ phone });
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Hash the new password
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Save the password to the user's record
+    user.password = hashedPassword;
+    await user.save();
+
+    res.json({ message: "Password set successfully" });
+  } catch (error) {
+    console.error("Error setting password:", error);
+    res.status(500).json({ message: "Error setting password", error: error.message });
+  }
+});
+
+
+
 // ✅ Sign In with Phone & Password
 router.post("/signin", async (req, res) => {
   const { phone, password } = req.body;
