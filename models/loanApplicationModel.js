@@ -1,7 +1,6 @@
 const mongoose = require("mongoose");
 
 const LoanApplicationSchema = new mongoose.Schema({
-  applicantName: { type: String, required: true },
   email: { type: String, required: true, unique: true },
   phone: { type: String, required: true },
   loanAmount: { type: Number, required: true },

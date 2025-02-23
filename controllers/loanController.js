@@ -3,14 +3,13 @@ const LoanApplication = require("../models/loanApplicationModel");
 // Loan Application Submission
 exports.applyForLoan = async (req, res) => {
   try {
-    const { applicantName, email, phone, loanAmount, creditScore, income } = req.body;
+    const { email, phone, loanAmount, creditScore, income } = req.body;
 
-    if (!applicantName || !email || !phone || !loanAmount || !creditScore || !income) {
+    if (!email || !phone || !loanAmount || !creditScore || !income) {
       return res.status(400).json({ message: "All fields are required." });
     }
 
     const newApplication = new LoanApplication({
-      applicantName,
       email,
       phone,
       loanAmount,
